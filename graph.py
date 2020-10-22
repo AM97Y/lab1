@@ -49,16 +49,6 @@ class Graph():
             self._create_graph_dict(f)
             self._calculate_graph()
 
-    # Функция нахождения минимального элемента, исключая текущий элемент
-    def Min(self, lst, myindex):
-        return min(x for idx, x in enumerate(lst) if idx != myindex)
-
-    # функция удаления нужной строки и столбцах
-    def Delete(self, matrix, index1, index2):
-        del matrix[index1]
-        for i in matrix:
-            del i[index2]
-        return matrix
 
     def get_paths(self):
         paths = []
@@ -73,7 +63,8 @@ class Graph():
 
         return self._paths_to_format(paths)
 
-    def print_matrix(self, matrix):
+    @staticmethod
+    def print_matrix(matrix):
         print("---------------")
         for i in range(len(matrix)):
             print(matrix[i])
@@ -81,20 +72,22 @@ class Graph():
 
     def find_path_Kmean(self):
         m = 100
-        # ib = 3
         way = []
-        M = copy.deepcopy(self.graph_2d)
+        matrix = copy.deepcopy(self.graph_2d)
 
         ib = random.randint(1, self.size)
         way.append(ib)
+
         for i in np.arange(1, self.size, 1):
             s = []
+
             for j in np.arange(0, self.size, 1):
-                s.append(M[way[i - 1], j])
+                s.append(matrix[way[i - 1], j])
+
             way.append(s.index(min(s)))  # Индексы пунктов ближайших городов соседей
             for j in np.arange(0, i, 1):
-                M[way[i]][way[j]] = float('inf')
-                M[way[i]][way[j]] = float('inf')
+                matrix[way[i]][way[j]] = float('inf')
+                matrix[way[i]][way[j]] = float('inf')
 
         self.drow_path(self.X, self.Y, way, 100, 222, ib)
 
@@ -120,13 +113,15 @@ class Graph():
         plt.show()
 
     def _del_path_to_graph(self, path):
+        #self.print_matrix(self.graph_2d)
         for i_town, town in enumerate(path):
             if i_town != len(path) - 1:
-                self.graph_2d[town][path[i_town + 1]] = 0
-                self.graph_2d[path[i_town + 1]][town] = 0
+                self.graph_2d[town][path[i_town + 1]] = float('inf')
+                self.graph_2d[path[i_town + 1]][town] = float('inf')
             else:
-                self.graph_2d[town][0] = 0
-                self.graph_2d[0][town] = 0
+                self.graph_2d[town][0] = float('inf')
+                self.graph_2d[0][town] = float('inf')
+        #self.print_matrix(self.graph_2d)
 
     def _paths_to_format(self, paths):
         pass
