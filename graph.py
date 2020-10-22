@@ -1,5 +1,5 @@
 import random
-
+import copy
 import numpy as np
 import re
 import matplotlib.pyplot as plt
@@ -23,12 +23,25 @@ class Graph():
         print(self.graph_dict)
 
     def _calculate_graph(self):
-        self.graph_2d = [[abs(a[1][0] - b[1][0]) + abs(a[1][1] - b[1][1])
+        """self.graph_2d = [[abs(a[1][0] - b[1][0]) + abs(a[1][1] - b[1][1])
                           for a in self.graph_dict.items()]
-                         for b in self.graph_dict.items()]
+                         for b in self.graph_dict.items()]"""
+
+        X = [x[1][0] for x in self.graph_dict.items()]
+        Y = [x[1][1] for x in self.graph_dict.items()]
+
+        self.graph_2d = np.zeros([self.size, self.size])  # Шаблон матрицы относительных расстояний между пунктами
+        for i in np.arange(0, self.size, 1):
+            for j in np.arange(0, self.size, 1):
+                if i != j:
+                    self.graph_2d[i, j] = abs(X[i] - X[j]) + abs(Y[i] - Y[j])  # Заполнение матрицы
+                else:
+                    self.graph_2d[i, j] = float('inf')  # Заполнение главной диагонали матрицы
 
         """for i in range(self.size):
             self.graph_2d[i][i] = float('inf')"""
+        self.X = X
+        self.Y = Y
         print(self.graph_2d)
 
     def read_graph(self):
@@ -70,17 +83,7 @@ class Graph():
         m = 100
         # ib = 3
         way = []
-        a = 0
-        X = [x[1][0] for x in self.graph_dict.items()]
-        Y = [x[1][1] for x in self.graph_dict.items()]
-
-        M = np.zeros([self.size, self.size])  # Шаблон матрицы относительных расстояний между пунктами
-        for i in np.arange(0, self.size, 1):
-            for j in np.arange(0, self.size, 1):
-                if i != j:
-                    M[i, j] = abs(X[i] - X[j]) + abs(Y[i] - Y[j])  # Заполнение матрицы
-                else:
-                    M[i, j] = float('inf')  # Заполнение главной диагонали матрицы
+        M = copy.deepcopy(self.graph_2d)
 
         ib = random.randint(1, self.size)
         way.append(ib)
@@ -91,7 +94,9 @@ class Graph():
             way.append(s.index(min(s)))  # Индексы пунктов ближайших городов соседей
             for j in np.arange(0, i, 1):
                 M[way[i]][way[j]] = float('inf')
-                M[way[i]] [way[j]] = float('inf')
+                M[way[i]][way[j]] = float('inf')
+
+        self.drow_path(self.X, self.Y, way, 100, 222, ib)
 
         return way
 
