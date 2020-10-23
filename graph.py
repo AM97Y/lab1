@@ -59,7 +59,7 @@ class Graph:
             
         self.save(paths, S)
 
-        return self._paths_to_format(paths)
+        return paths
 
     @staticmethod
     def print_matrix(matrix):
@@ -109,8 +109,8 @@ class Graph:
     def save(self, paths, S):
         with open('res.txt', 'a') as f:
             f.write('\n\n')
-            f.write('n=' + str(self.size))
-            f.write('\n')
+            f.write('n = ' + str(self.size))
+            f.write('\nМаршруты коммивояжёра: \n')
             for path in paths:
                 for town in path:
                     f.write(str(town) + ' ')
