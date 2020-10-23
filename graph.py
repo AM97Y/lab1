@@ -1,15 +1,14 @@
-import random
 import copy
-import numpy as np
 import re
-import matplotlib.pyplot as plt
-from numpy import exp, sqrt
+
+import numpy as np
 
 
-class Graph():
+class Graph:
     def __init__(self, file_name=None):
         if not file_name:
             return False
+
         self.size = None
         self.file = file_name
         self.graph_2d = None
@@ -38,8 +37,6 @@ class Graph():
                 else:
                     self.graph_2d[i, j] = float('inf')  # Заполнение главной диагонали матрицы
 
-        """for i in range(self.size):
-            self.graph_2d[i][i] = float('inf')"""
         self.X = X
         self.Y = Y
         print(self.graph_2d)
@@ -51,14 +48,16 @@ class Graph():
 
     def get_paths(self):
         paths = []
+        S = []
         for i in range(0, 3):
             print(i)
-            # https://habr.com/ru/post/329604/
-            # https://github.com/Clever-Shadow/python-salesman/blob/master/salesman.py
-            path = self.find_path_Kmean()
+            path, s = self.find_path_Kmean()
+            S.append(s)
             print(path)
             paths.append(path)
             self._del_path_to_graph(path)
+            
+        self.save(paths, S)
 
         return self._paths_to_format(paths)
 
@@ -74,8 +73,8 @@ class Graph():
         way = []
         matrix = copy.deepcopy(self.graph_2d)
 
-        ib = random.randint(1, self.size)
-        way.append(ib)
+        start = 1
+        way.append(start)
 
         for i in np.arange(1, self.size, 1):
             s = []
@@ -88,34 +87,13 @@ class Graph():
                 matrix[way[i]][way[j]] = float('inf')
                 matrix[way[i]][way[j]] = float('inf')
 
-        self.drow_path(self.X, self.Y, way, 100, 222, ib)
-
         S = sum([abs(self.X[way[i]] - self.X[way[i + 1]]) + abs(self.Y[way[i]] - self.Y[way[i + 1]])
                  for i in np.arange(0, self.size - 1, 1)]) + \
             (abs(self.X[way[self.size - 1]] - self.X[way[0]]) + abs(self.Y[way[self.size - 1]] - self.Y[way[0]]))
 
         print("WAY - ", S)
 
-        return way
-
-    def drow_path(self, X, Y, way, a, m, ib):
-        S = sum([sqrt((X[way[i]] - X[way[i + 1]]) ** 2 + (Y[way[i]] - Y[way[i + 1]]) ** 2) for i in
-                 np.arange(0, self.size - 1, 1)]) + sqrt(
-            (X[way[self.size - 1]] - X[way[0]]) ** 2 + (Y[way[self.size - 1]] - Y[way[0]]) ** 2)
-
-        plt.title('Общий путь-%s.Номер города-%i.Всего городов -%i.\n Координаты X,Y случайные числа от %i до %i' % (
-            round(S, 3), ib, self.size, a, m), size=14)
-        n = self.size
-        X1 = [X[way[i]] for i in np.arange(0, n, 1)]
-        Y1 = [Y[way[i]] for i in np.arange(0, n, 1)]
-        plt.plot(X1, Y1, color='r', linestyle=' ', marker='o')
-        plt.plot(X1, Y1, color='b', linewidth=1)
-        X2 = [X[way[n - 1]], X[way[0]]]
-        Y2 = [Y[way[n - 1]], Y[way[0]]]
-        plt.plot(X2, Y2, color='g', linewidth=2, linestyle='-', label='Путь от  последнего \n к первому городу')
-        plt.legend(loc='best')
-        plt.grid(True)
-        plt.show()
+        return way, S
 
     def _del_path_to_graph(self, path):
         # self.print_matrix(self.graph_2d)
@@ -128,5 +106,22 @@ class Graph():
                 self.graph_2d[0][town] = float('inf')
         # self.print_matrix(self.graph_2d)
 
-    def _paths_to_format(self, paths):
-        pass
+    def save(self, paths, S):
+        with open('res.txt', 'a') as f:
+            f.write('\n\n')
+            f.write('n=' + str(self.size))
+            f.write('\n')
+            for path in paths:
+                for town in path:
+                    f.write(str(town) + ' ')
+                f.write('\n')
+
+            sum = 0
+            for i, s in enumerate(S):
+                sum += s
+                if i != 0:
+                    f.write(' + ')
+                f.write(str(s))
+
+            f.write(' = ')
+            f.write(str(sum))
