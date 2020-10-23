@@ -69,11 +69,10 @@ class Graph:
         print("---------------")
 
     def find_path_Kmean(self):
-        m = 100
         way = []
         matrix = copy.deepcopy(self.graph_2d)
 
-        start = 1
+        start = 0
         way.append(start)
 
         for i in np.arange(1, self.size, 1):
@@ -113,7 +112,7 @@ class Graph:
             f.write('\nМаршруты коммивояжёра: \n')
             for path in paths:
                 for town in path:
-                    f.write(str(town) + ' ')
+                    f.write(str(town + 1) + ' ')
                 f.write('\n')
 
             sum = 0
