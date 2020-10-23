@@ -49,7 +49,6 @@ class Graph():
             self._create_graph_dict(f)
             self._calculate_graph()
 
-
     def get_paths(self):
         paths = []
         for i in range(0, 3):
@@ -91,6 +90,12 @@ class Graph():
 
         self.drow_path(self.X, self.Y, way, 100, 222, ib)
 
+        S = sum([abs(self.X[way[i]] - self.X[way[i + 1]]) + abs(self.Y[way[i]] - self.Y[way[i + 1]])
+                 for i in np.arange(0, self.size - 1, 1)]) + \
+            (abs(self.X[way[self.size - 1]] - self.X[way[0]]) + abs(self.Y[way[self.size - 1]] - self.Y[way[0]]))
+
+        print("WAY - ", S)
+
         return way
 
     def drow_path(self, X, Y, way, a, m, ib):
@@ -113,7 +118,7 @@ class Graph():
         plt.show()
 
     def _del_path_to_graph(self, path):
-        #self.print_matrix(self.graph_2d)
+        # self.print_matrix(self.graph_2d)
         for i_town, town in enumerate(path):
             if i_town != len(path) - 1:
                 self.graph_2d[town][path[i_town + 1]] = float('inf')
@@ -121,7 +126,7 @@ class Graph():
             else:
                 self.graph_2d[town][0] = float('inf')
                 self.graph_2d[0][town] = float('inf')
-        #self.print_matrix(self.graph_2d)
+        # self.print_matrix(self.graph_2d)
 
     def _paths_to_format(self, paths):
         pass
