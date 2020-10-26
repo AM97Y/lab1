@@ -27,15 +27,16 @@ class Graph:
                          for b in self.graph_dict.items()]"""
 
         X = [x[1][0] for x in self.graph_dict.items()]
-        Y = [x[1][1] for x in self.graph_dict.items()]
+        Y = [y[1][1] for y in self.graph_dict.items()]
 
         self.graph_2d = np.zeros([self.size, self.size])  # Шаблон матрицы относительных расстояний между пунктами
+
         for i in np.arange(0, self.size, 1):
             for j in np.arange(0, self.size, 1):
                 if i != j:
-                    self.graph_2d[i, j] = abs(X[i] - X[j]) + abs(Y[i] - Y[j])  # Заполнение матрицы
+                    self.graph_2d[i][j] = abs(X[i] - X[j]) + abs(Y[i] - Y[j])  # Заполнение матрицы
                 else:
-                    self.graph_2d[i, j] = float('inf')  # Заполнение главной диагонали матрицы
+                    self.graph_2d[i][j] = float('inf')  # Заполнение главной диагонали матрицы
 
         self.X = X
         self.Y = Y
@@ -53,10 +54,10 @@ class Graph:
             print(i)
             path, s = self.find_path_Kmean()
             S.append(s)
-            print(path)
+            #print(path)
             paths.append(path)
             self._del_path_to_graph(path)
-            
+
         self.save(paths, S)
 
         return paths
@@ -68,29 +69,70 @@ class Graph:
             print(matrix[i])
         print("---------------")
 
-    def find_path_Kmean(self):
+    def find_path_Kmean(self, shift=0):
         way = []
-        matrix = copy.deepcopy(self.graph_2d)
 
+        matrix = copy.deepcopy(self.graph_2d)
+        """print(matrix[18][0:])
+        print('18 28 _________:')"""
+        # print(matrix[18][28])
         start = 0
         way.append(start)
+        s = []
 
-        for i in np.arange(1, self.size, 1):
+        """for j in range(0, self.size):
+            s.append(matrix[way[0]][j])
+        way.append(s.index(min(s)))"""
+
+        """for index in range(0, self.size):
+
+            for j in range(index, self.size):
+                s.append(matrix[index][j])
+
+            min_town = s.index(min(s))
+            
+            
+            matrix[index][min_town] = float('inf')
+            matrix[min_town][index] = float('inf')
+
+            way.append(min_town)
+
+        print(way)"""
+
+        flag_bad = False
+
+        for i in range(1, self.size):
             s = []
 
-            for j in np.arange(0, self.size, 1):
-                s.append(matrix[way[i - 1], j])
+            for j in range(0, self.size):
+                s.append(matrix[way[i - 1]][j])
 
-            way.append(s.index(min(s)))  # Индексы пунктов ближайших городов соседей
-            for j in np.arange(0, i, 1):
+            if shift > 0 and shift == i:
+                s[s.index(min(s))] = float('inf')
+
+            if s.index(min(s)) in way:
+                flag_bad = True
+                break
+
+            way.append(s.index(min(s)))
+
+            # Индексы пунктов ближайших городов соседей
+            for j in range(0, i):
                 matrix[way[i]][way[j]] = float('inf')
-                matrix[way[i]][way[j]] = float('inf')
+                matrix[way[j]][way[i]] = float('inf')
+
+        if flag_bad:
+            return self.find_path_Kmean(shift + 1)
+        if len(set(way)) != self.size:
+            print('\n_____________________\n')
+            print(len(set(way)))
 
         S = sum([abs(self.X[way[i]] - self.X[way[i + 1]]) + abs(self.Y[way[i]] - self.Y[way[i + 1]])
                  for i in np.arange(0, self.size - 1, 1)]) + \
             (abs(self.X[way[self.size - 1]] - self.X[way[0]]) + abs(self.Y[way[self.size - 1]] - self.Y[way[0]]))
 
         print("WAY - ", S)
+        print(len(set(way)))
 
         return way, S
 
@@ -103,10 +145,9 @@ class Graph:
             else:
                 self.graph_2d[town][0] = float('inf')
                 self.graph_2d[0][town] = float('inf')
-        # self.print_matrix(self.graph_2d)
 
     def save(self, paths, S):
-        with open('res.txt', 'a') as f:
+        with open('Averina_{}.txt'.format(self.size), 'a') as f:
             f.write('\n\n')
             f.write('n = ' + str(self.size))
             f.write('\nМаршруты коммивояжёра: \n')
