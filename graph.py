@@ -19,7 +19,6 @@ class Graph:
         for line in file.readlines():
             vert = list(map(int, re.findall(r'\d+', line)))
             self.graph_dict.update({vert[0]: [vert[1], vert[2]]})
-        print(self.graph_dict)
 
     def _calculate_graph(self):
         """self.graph_2d = [[abs(a[1][0] - b[1][0]) + abs(a[1][1] - b[1][1])
@@ -40,7 +39,6 @@ class Graph:
 
         self.X = X
         self.Y = Y
-        print(self.graph_2d)
 
     def read_graph(self):
         with open(self.file, 'r', encoding='utf-8') as f:
@@ -50,15 +48,15 @@ class Graph:
     def get_paths(self):
         paths = []
         S = []
-        for i in range(0, 3):
+
+        for i in range(0, 1):
             print(i)
             path, s = self.find_path_Kmean()
             S.append(s)
-            #print(path)
             paths.append(path)
             self._del_path_to_graph(path)
 
-        self.save(paths, S)
+        self.save_tree(paths, S)
 
         return paths
 
@@ -70,35 +68,11 @@ class Graph:
         print("---------------")
 
     def find_path_Kmean(self, shift=0):
-        way = []
 
+        way = []
         matrix = copy.deepcopy(self.graph_2d)
-        """print(matrix[18][0:])
-        print('18 28 _________:')"""
-        # print(matrix[18][28])
         start = 0
         way.append(start)
-        s = []
-
-        """for j in range(0, self.size):
-            s.append(matrix[way[0]][j])
-        way.append(s.index(min(s)))"""
-
-        """for index in range(0, self.size):
-
-            for j in range(index, self.size):
-                s.append(matrix[index][j])
-
-            min_town = s.index(min(s))
-            
-            
-            matrix[index][min_town] = float('inf')
-            matrix[min_town][index] = float('inf')
-
-            way.append(min_town)
-
-        print(way)"""
-
         flag_bad = False
 
         for i in range(1, self.size):
@@ -123,6 +97,7 @@ class Graph:
 
         if flag_bad:
             return self.find_path_Kmean(shift + 1)
+
         if len(set(way)) != self.size:
             print('\n_____________________\n')
             print(len(set(way)))
@@ -133,11 +108,9 @@ class Graph:
 
         print("WAY - ", S)
         print(len(set(way)))
-
         return way, S
 
     def _del_path_to_graph(self, path):
-        # self.print_matrix(self.graph_2d)
         for i_town, town in enumerate(path):
             if i_town != len(path) - 1:
                 self.graph_2d[town][path[i_town + 1]] = float('inf')
@@ -165,3 +138,12 @@ class Graph:
 
             f.write(' = ')
             f.write(str(sum))
+
+    def save_tree(self, paths, S):
+        with open('Averina_{}.txt'.format(self.size), 'a') as f:
+            f.write(f'\nc  Вес дерева = {S[0]}, число листьев = 2,\n')
+            f.write(f'p edge = {self.size} {self.size - 1}\n')
+            for path in paths:
+                for idx, town in enumerate(path):
+                    if idx != self.size - 1:
+                        f.write('e ' + str(town + 1) + ' ' + str(path[idx + 1] + 1) + '\n')
